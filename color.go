@@ -32,13 +32,7 @@ func cyan(s string, on bool) string   { return paint(s, cCyan, on) }
 func gray(s string, on bool) string   { return paint(s, cGray, on) }
 
 func banner(on bool) {
-	art := `
-   _____ _          _ _ _                       _
-  / ____| |        | | | |                     | |
- | (___ | |__   ___| | | |__   ___  _   _ _ __ | |
-  \___ \| '_ \ / _ \ | | '_ \ / _ \| | | | '_ \| |
-  ____) | | | |  __/ | | | | | (_) | |_| | | | |_|
- |_____/|_| |_|\___|_|_|_| |_|\___/ \__,_|_| |_(_)`
+	art := "       _          _ _ _                           _\n   ___| |__   ___| | | |__   ___  _   _ _ __   __| |\n  / __| '_ \\ / _ \\ | | '_ \\ / _ \\| | | | '_ \\ / _` |\n  \\__ \\ | | |  __/ | | | | | (_) | |_| | | | | (_| |\n  |___/_| |_|\\___|_|_|_| |_|\\___/ \\__,_|_| |_|\\__,_|"
 	fmt.Println(green(art, on))
-	fmt.Println(dim("  pemburu webshell & backdoor — pindai filesystem, cocokkan signature\n", on))
+	fmt.Println(dim("  pemburu webshell & backdoor - pindai filesystem, cocokkan signature\n", on))
 }
