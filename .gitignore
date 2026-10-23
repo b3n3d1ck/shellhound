@@ -1,0 +1,4 @@
+shellhound
+shellhound.exe
+dist/
+*.test
