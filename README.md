@@ -100,6 +100,31 @@ shellhound -json -o lapor.json /var/www/html           # simpan laporan JSON
 
 ---
 
+## Mode URL (input link)
+
+Selain scan folder, shellhound bisa dikasih **link** langsung. Dia menelusuri situs secara **pasif** — murni dari yang server tampilkan sendiri, tanpa wordlist dan tanpa memaksa apa pun terbuka — lalu lapor temuannya.
+
+```bash
+shellhound https://situsku.com
+shellhound -depth 3 https://situsku.com
+shellhound -json -o lapor.json https://situsku.com
+```
+
+Mode-nya kepilih otomatis: argumen diawali `http://`/`https://` → mode URL, selain itu → mode folder.
+
+| Yang dilaporkan | Isinya |
+|---|---|
+| **Host** | IP, reverse DNS, header `Server`, teknologi (PHP, WordPress, Laravel, dll) |
+| **Path 200** | hanya path yang benar-benar bisa diakses (200) — yang 404 tidak ditampilkan |
+| **Temuan halaman** | halaman login, form uploader, dan halaman yang isinya mirip webshell |
+| **Kelemahan** | header hilang, cookie tanpa flag, versi bocor, TLS mau kedaluwarsa, HTTP tanpa redirect ke HTTPS, directory listing — tiap item + cara fix |
+
+Path ditemukan tanpa wordlist: dari link di halaman, `robots.txt`, `sitemap.xml`, dan endpoint yang disebut file JavaScript. Webshell ditandai dari halaman yang **sudah ketemu saat penelusuran**, bukan dengan menebak-nebak nama file. Semua request cuma **GET**.
+
+Opsi khusus mode URL: `-depth` (kedalaman, default 2), `-timeout` (detik, default 10), `-insecure` (lewati cek TLS), `-ua` (User-Agent).
+
+---
+
 ## Tingkat keyakinan
 
 Hasil dikelompokkan jadi tiga tingkat berdasarkan skor:

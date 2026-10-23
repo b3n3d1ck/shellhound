@@ -26,6 +26,11 @@ func main() {
 		outFile  = flagString("o", "", "tulis laporan JSON ke file")
 		noColor  = flagBool("no-color", false, "matikan warna")
 		showVer  = flagBool("version", false, "cetak versi lalu keluar")
+		// mode URL (kalau argumen berupa link)
+		depth    = flagInt("depth", 2, "[mode URL] kedalaman penelusuran link")
+		timeout  = flagInt("timeout", 10, "[mode URL] timeout per request (detik)")
+		insecure = flagBool("insecure", false, "[mode URL] lewati verifikasi sertifikat TLS")
+		ua       = flagString("ua", "shellhound/"+version, "[mode URL] User-Agent")
 	)
 	parseFlags(usage)
 
@@ -39,6 +44,19 @@ func main() {
 		os.Exit(2)
 	}
 	root := args[0]
+
+	// --- mode URL: input berupa link, bukan folder ---
+	if isURL(root) {
+		runURLScan(root, urlConfig{
+			timeout:     time.Duration(*timeout) * time.Second,
+			insecure:    *insecure,
+			ua:          *ua,
+			concurrency: *conc,
+			depth:       *depth,
+		}, *asJSON, *outFile, *noColor)
+		return
+	}
+
 	if fi, err := os.Stat(root); err != nil || !fi.IsDir() {
 		fmt.Fprintf(os.Stderr, "bukan folder yang bisa dibaca: %s\n", root)
 		os.Exit(2)
@@ -184,18 +202,21 @@ func remediation(color bool) {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `shellhound %s — pemindai webshell & backdoor berbasis filesystem
+	fmt.Fprintf(os.Stderr, `shellhound %s — pemburu webshell & backdoor
 
-Pakai: shellhound [opsi] <folder>
+Dua mode, dipilih otomatis dari argumen:
 
-Menelusuri folder (web root) di disk, membaca tiap file PHP, dan mencocokkannya
-dengan signature webshell yang dikenal, pola fungsi eksekusi berbahaya, dan
-kode terobfuscasi. Juga menangkap file PHP yang menyamar jadi .jpg/.ico dll.
-Read-only: tidak mengubah atau menghapus apa pun.
+  shellhound <folder>   mode FILESYSTEM — baca web root di disk, cocokkan tiap
+                        file PHP dengan signature shell. Paling ampuh.
+  shellhound <url>      mode URL — telusuri situs secara pasif dari link-nya
+                        (tanpa wordlist), laporkan hanya path 200, kenali
+                        halaman login/uploader/webshell, info IP/host/server,
+                        dan daftar kelemahan + cara fix. Hanya GET.
 
   shellhound /var/www/html
   shellhound -base https://situsku.com -json -o lapor.json /var/www/html
-  shellhound -all-ext -min 20 /var/www/html
+  shellhound https://situsku.com
+  shellhound -depth 3 https://situsku.com
 
 Opsi:
 `, version)
